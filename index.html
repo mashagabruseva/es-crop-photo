@@ -105,8 +105,8 @@
             roundedImage = document.createElement('img')
             roundedImage.src = roundedCanvas.toDataURL()
 
-            result.innerHTML = '';
-            result.appendChild(roundedImage);
+            result.innerHTML = `<a href="${roundedImage.src}" download="profile-photo.png" class="cropper__btn">Download</a>`
+            result.appendChild(roundedImage)
         }
     </script>
 </body>
