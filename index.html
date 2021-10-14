@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EffectiveSoft LinkedIn profile photo cropper</title>
+    <link href="assets/style.css" rel="stylesheet">
+    <link href="assets/cropper.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container header__container">
+            <div class="header__logo">
+                <a href="https://www.effectivesoft.by/" class="header__logo-link">
+                    <img src="assets/eslogo.png" alt="" class="header__logo-img">
+                </a>
+                <span class="header__text">EffectiveSoft LinkedIn profile photo cropper</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="cropper">
+        <div class="container cropper__container">
+            <div class="cropper__controls">
+                <div id="selectBtn" class="cropper__btn">
+                    Select photo
+                    <input id="cropperImageInput" type="file" class="cropper__input">
+                </div>
+                <button id="cropBtn" class="cropper__btn cropper__btn_hide ">Crop photo</button>
+                <button id="reloadBtn" class="cropper__btn cropper__btn_hide">New photo</button>
+            </div>
+            
+
+            <div class="cropper__visual">
+                <div class="cropper__source-img-wrapper">
+                    <img id="cropperSourceImage" class="cropper__source-img">
+                </div>
+
+                <div id="result" class="cropper__result"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="assets/cropper.min.js"></script>
+    <script src="assets/watermark.min.js"></script>
+    <script>
+        const cropperImageInput = document.getElementById('cropperImageInput')
+        const cropperSourceImage = document.getElementById('cropperSourceImage')
+        const cropBtn = document.getElementById('cropBtn')
+        const reloadBtn = document.getElementById('reloadBtn')
+        let cropper
+
+        const getRoundedCanvas = (sourceCanvas) => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const width = sourceCanvas.width;
+            const height = sourceCanvas.height;
+
+            canvas.width = width;
+            canvas.height = height;
+            context.imageSmoothingEnabled = true;
+            context.drawImage(sourceCanvas, 0, 0, width, height);
+            context.globalCompositeOperation = 'destination-in';
+            context.beginPath();
+            context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
+            context.fill();
+            return canvas;
+        }
+
+        const initCropper = () => {
+            cropper = new Cropper(cropperSourceImage, {
+                aspectRatio: 1,
+                viewMode: 1
+            })
+        }
+
+        cropperImageInput.addEventListener('change', function() {
+            const fileReader = new FileReader()
+            fileReader.onload = () => { 
+                document.getElementById('selectBtn').classList.add('cropper__btn_hide')
+                cropBtn.classList.remove('cropper__btn_hide')
+                reloadBtn.classList.remove('cropper__btn_hide')
+                cropperSourceImage.src = fileReader.result 
+                initCropper()
+            }
+
+            fileReader.readAsDataURL(cropperImageInput.files[0])
+        })
+
+        reloadBtn.onclick = () => { 
+            window.location.reload() 
+        }
+
+        cropBtn.onclick = () => {
+            let croppedCanvas
+            let roundedCanvas
+            let roundedImage
+            const label = new Image()
+            label.src = 'assets/es-label.png'
+
+            croppedCanvas = cropper.getCroppedCanvas({ width: 640, height: 640 });
+            croppedCanvas.getContext('2d').drawImage(label, 0, 0)
+            roundedCanvas = getRoundedCanvas(croppedCanvas);
+            roundedImage = document.createElement('img')
+            roundedImage.src = roundedCanvas.toDataURL()
+
+            result.innerHTML = '';
+            result.appendChild(roundedImage);
+        }
+    </script>
+</body>
+</html>
